@@ -50,13 +50,9 @@ Concesionario/
 │   ├── Pagos/             # Patrón Strategy + Factory (formas de pago)
 │   └── Swing/             # Interfaz gráfica (formularios y menú)
 ├── tests/
-│   ├── README.md
-│   ├── Pagos/             # Pruebas de estrategias y fábrica
-│   └── Servicio/          # Prueba de integración de CompraService
+│   ├── README.md      
 └── docs/
     ├── descripcion_proyecto.md
-    ├── patrones/strategy_factory.md
-    └── diagramas/strategy_pago.png (.mmd)
 ```
 
 ## Patrones y decisiones de construcción
@@ -89,12 +85,6 @@ El proyecto aplica un patrón principal, implementado en esta entrega, y varios 
 | **Segregación de interfaces** | `iBuscablePorId`, `iEliminable`, `iActualizable`, `iRepositorioBase<T>` | Interfaces pequeñas y genéricas que cada repositorio combina según lo que necesita |
 | **DTO (objeto de transferencia)** | `DatosFactura`, `DatosAdicionales` | Transportan los datos de la factura y los datos opcionales del pago entre capas |
 | **Herencia y polimorfismo** | `Persona` → `Cliente`, `Asesor` | Reutiliza atributos comunes de las personas |
-
-### Otras decisiones de construcción
-- **Separación de responsabilidades:** la interfaz (`PagoForm`) solo captura datos; el cálculo vive en las estrategias y las reglas de la compra en `CompraService`.
-- **Código duplicado eliminado:** se retiró la jerarquía `Pago`, `PagoContado`, `PagoCredito`, `PagoLeasing` y `RegistroPago`.
-- **Manejo de errores:** `PagoInvalidoException` para formas de pago o datos inválidos; validación de inventario antes de vender.
-- **Integridad de la compra:** la compra se guarda y descuenta inventario solo si el cálculo del pago fue válido.
 
 
 ## Integrantes del equipo
