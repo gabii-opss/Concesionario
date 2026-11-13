@@ -99,6 +99,12 @@ public class ConcesionarioService {
         return compraService.registrarCompra(cliente, vehiculo, asesor, tipoPago, datosAdicionales, idCompra);
     }
 
+    public Compra registrarCompra(Cliente cliente, Vehiculo vehiculo,
+                                  Asesor asesor, String tipoPago,
+                                  DatosAdicionales datosAdicionales) {
+        return compraService.registrarCompra(cliente, vehiculo, asesor, tipoPago, datosAdicionales);
+    }
+
     public List<Compra> obtenerCompras() {
         return compraService.obtenerTodas();
     }
@@ -220,6 +226,39 @@ public class ConcesionarioService {
         }
 
         return sb.toString();
+    }
+
+    // ================= BÚSQUEDAS =================
+
+    public Cliente buscarClientePorId(String id) {
+        return clientService.buscarCliente(id);
+    }
+
+    /** Busca un asesor por nombre (sin distinguir mayúsculas). */
+    public Asesor buscarAsesorPorNombre(String nombre) {
+        return repoAsesor.buscarPorId(nombre);
+    }
+
+    public Vehiculo buscarVehiculoPorMarca(String marca) {
+        return vehiculoService.obtenerCatalogo().stream()
+                .filter(v -> v.getMarca().equalsIgnoreCase(marca))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Vehiculo buscarVehiculoPorModelo(String modelo) {
+        return vehiculoService.obtenerCatalogo().stream()
+                .filter(v -> v.getModelo().equalsIgnoreCase(modelo))
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Compra buscarCompraPorId(int idCompra) {
+        return compraService.buscarPorId(idCompra);
+    }
+
+    public List<Compra> buscarComprasDeCliente(String idCliente) {
+        return compraService.obtenerPorCliente(idCliente);
     }
 
     // ================= OTROS SERVICIOS =================

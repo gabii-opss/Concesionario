@@ -14,17 +14,19 @@ public class Menu extends JFrame {
     JButton catalogo=new JButton ("CATALOGO");
     JButton registro_asesores=new JButton ("REGISTRO ASESORES");
     JButton info_asesores=new JButton("INFORMACION \n ASESORES");
+    JButton b_asesores=new JButton("BUSCAR ");
     JButton info_clientes=new JButton("INFORMACION \n CLIENTES");
-    JButton info_clientes_preventa=new JButton("INFORMACION \nPREVENTA");
     JButton salir=new JButton ("SALIR");
     JLabel titulo=new JLabel (" Sistema Comercializadora de Vehículos ");
 
     ConcesionarioService concesionario;
      VehiculoService vehiculoService;
+     Catalogo c;
 
     public Menu(ConcesionarioService concesionario, VehiculoService vehiculoService) {
         this.concesionario = concesionario;
         this.vehiculoService = vehiculoService;
+        this.c = new Catalogo(vehiculoService);
         loadform();
     }
 
@@ -50,29 +52,34 @@ public class Menu extends JFrame {
         info_asesores.setForeground(Color.white);
         info_asesores.setBackground(new Color(38, 50, 56));
         info_clientes.setFont(new Font("Century Gothic",Font.BOLD,15));
-        info_clientes_preventa.setFont(new Font("Century Gothic",Font.BOLD,15));
         info_clientes.setForeground(Color.white);
         info_clientes.setBackground(new Color(38, 50, 56));
-        info_clientes_preventa.setForeground(Color.white);
-        info_clientes_preventa.setBackground(new Color(38, 50, 56));
         salir.setFont(new Font("Century Gothic",Font.BOLD,15));
         salir.setForeground(Color.white);
         salir.setBackground(new Color(38, 50, 56));
+        
+        b_asesores.setFont(new Font("Century Gothic",Font.BOLD,15));
+        b_asesores.setForeground(Color.white);
+        b_asesores.setBackground(new Color(38, 50, 56));
+        b_asesores.setFont(new Font("Century Gothic",Font.BOLD,15));
+        b_asesores.setForeground(Color.white);
 
+        botones.add(Box.createRigidArea(new Dimension(0,10)));
+        botones.add(catalogo);
         botones.add(Box.createRigidArea(new Dimension(0,10)));
         registro.setFocusPainted(false);
         info_asesores.setFocusPainted(false);
         botones.add(registro);
-        botones.add(Box.createRigidArea(new Dimension(0,10)));
-        botones.add(catalogo);
+
         botones.add(Box.createRigidArea(new Dimension(0,10)));
         botones.add(registro_asesores);
         botones.add(Box.createRigidArea(new Dimension(0,10)));
         botones.add(info_asesores);
+
         botones.add(Box.createRigidArea(new Dimension(0,10)));
         botones.add(info_clientes);
-        botones.add(Box.createRigidArea(new Dimension(0,10)));
-        botones.add(info_clientes_preventa);
+         botones.add(Box.createRigidArea(new Dimension(0,10)));
+        botones.add(b_asesores);
         botones.add(Box.createRigidArea(new Dimension(0,10)));
         botones.add(salir);
         botones.add(Box.createRigidArea(new Dimension(0,10)));
@@ -85,15 +92,15 @@ public class Menu extends JFrame {
         registro_asesores.setMaximumSize(size);
         salir.setMaximumSize(size);
         info_asesores.setMaximumSize(size);
+        b_asesores.setMaximumSize(size);
         info_clientes.setMaximumSize(size);
-        info_clientes_preventa.setMaximumSize(size);
 
 
         registro.setAlignmentX(Component.CENTER_ALIGNMENT);
         registro_asesores.setAlignmentX(Component.CENTER_ALIGNMENT);
         info_asesores.setAlignmentX(Component.CENTER_ALIGNMENT);
+        b_asesores.setAlignmentX(Component.CENTER_ALIGNMENT);
         info_clientes.setAlignmentX(Component.CENTER_ALIGNMENT);
-        info_clientes_preventa.setAlignmentX(Component.CENTER_ALIGNMENT);
         catalogo.setAlignmentX(Component.CENTER_ALIGNMENT);
         salir.setAlignmentX(Component.CENTER_ALIGNMENT);
 
@@ -107,7 +114,73 @@ public class Menu extends JFrame {
             new RegistroAsesor(concesionario);
 
         });
+b_asesores.addActionListener(e -> {
+    String[] opciones = {"Cliente", "Asesor", "Vehículo", "Compra"};
+    String tipo = (String) JOptionPane.showInputDialog(
+            null,
+            "¿Qué deseas buscar?",
+            "Búsqueda",
+            JOptionPane.QUESTION_MESSAGE,
+            null,
+            opciones,
+            "Cliente"
+    );
 
+    if (tipo == null) return; // Si el usuario cancela
+
+    switch (tipo) {
+        case "Cliente" -> {
+            String id = JOptionPane.showInputDialog("Ingrese el ID del cliente:");
+            if (id != null) {
+                var cliente = concesionario.buscarClientePorId(id);
+                if (cliente != null)
+                    cliente.mostrarInfo();
+                else
+                    JOptionPane.showMessageDialog(null, "No se encontró ningún cliente con ese ID.", "Sin resultados", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+
+        case "Asesor" -> {
+            String nombre = JOptionPane.showInputDialog("Ingrese el nombre del asesor:");
+            if (nombre != null) {
+                var asesor = concesionario.buscarAsesorPorNombre(nombre);
+                if (asesor != null)
+                    asesor.mostrarInfo();
+                else
+                    JOptionPane.showMessageDialog(null, "No se encontró ningún asesor con ese nombre.", "Sin resultados", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+
+        case "Compra" -> {
+            String texto = JOptionPane.showInputDialog("Ingrese el número de compra:");
+            if (texto != null) {
+                try {
+                    var compra = concesionario.buscarCompraPorId(Integer.parseInt(texto.trim()));
+                    if (compra != null)
+                        JOptionPane.showMessageDialog(null, compra.toString(), "Compra encontrada", JOptionPane.INFORMATION_MESSAGE);
+                    else
+                        JOptionPane.showMessageDialog(null, "No se encontró ninguna compra con ese número.", "Sin resultados", JOptionPane.WARNING_MESSAGE);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(null, "Ingrese un número válido.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+
+        case "Vehículo" -> {
+            String modelo = JOptionPane.showInputDialog("Ingrese el modelo del vehículo:");
+            if (modelo != null) {
+                var vehiculo = concesionario.buscarVehiculoPorModelo(modelo);
+                if (vehiculo != null)
+                    JOptionPane.showMessageDialog(null, vehiculo.toString(), "Vehículo encontrado", JOptionPane.INFORMATION_MESSAGE);
+                else
+                    JOptionPane.showMessageDialog(null, "No se encontró ningún vehículo con ese modelo.", "Sin resultados", JOptionPane.WARNING_MESSAGE);
+            }
+        }
+
+            
+        
+    }
+});
 
         info_asesores.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -131,17 +204,10 @@ public class Menu extends JFrame {
 
             }
         });
-        info_clientes_preventa.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                JOptionPane.showMessageDialog(null, concesionario.generarReportePreventa());
 
-
-
-            }
-        });
 
         catalogo.addActionListener(e -> {
-            mostrarCatalogo();
+            c.verCatalogo();
         });
         JPanel mainpanel = new JPanel(new BorderLayout());
         mainpanel.add(tituloo, BorderLayout.NORTH);
@@ -157,64 +223,7 @@ public class Menu extends JFrame {
         setVisible(true);
 
     }
-    private void mostrarCatalogo() {
-        var lista = vehiculoService.obtenerCatalogo();
-
-        if (lista.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "No hay vehículos registrados en el catálogo.",
-                    "Catálogo vacío", JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-
-        // Columnas
-        String[] columnas = {"Marca", "Modelo", "Precio", "País de Ensamblaje"};
-
-        // Datos
-        Object[][] datos = new Object[lista.size()][columnas.length];
-        DecimalFormat df = new DecimalFormat("#,###");
-
-        for (int i = 0; i < lista.size(); i++) {
-            var v = lista.get(i);
-            datos[i][0] = v.getMarca();
-            datos[i][1] = v.getModelo();
-            datos[i][2] = "$" + df.format(v.getCosto());
-            datos[i][3] = v.getPais_ensamblaje();
-        }
-
-        // Crear tabla
-        JTable tabla = new JTable(datos, columnas);
-        tabla.setEnabled(false);
-        tabla.setFont(new Font("Century Gothic", Font.PLAIN, 14));
-        tabla.setRowHeight(28);
-
-        // 🎨 Tabla blanca, texto negro
-        tabla.setBackground(Color.WHITE);
-        tabla.setForeground(Color.BLACK);
-        tabla.setGridColor(new Color(200, 200, 200));
-        tabla.setSelectionBackground(new Color(220, 230, 255));
-        tabla.setSelectionForeground(Color.BLACK);
-
-        // 🎨 Encabezado azul
-        tabla.getTableHeader().setFont(new Font("Century Gothic", Font.BOLD, 15));
-        tabla.getTableHeader().setBackground(new Color(59, 95, 184));
-        tabla.getTableHeader().setForeground(Color.WHITE);
-        tabla.getTableHeader().setOpaque(true);
-
-        // Scrollpane
-        JScrollPane scroll = new JScrollPane(tabla);
-        scroll.getViewport().setBackground(Color.WHITE);
-        scroll.setPreferredSize(new Dimension(700, 350));
-        scroll.setBorder(BorderFactory.createLineBorder(new Color(59, 95, 184), 2));
-
-        // 🎨 Fondo oscuro general
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(new Color(38, 50, 56)); // mismo fondo que tu app
-        panel.add(scroll, BorderLayout.CENTER);
-
-        // Mostrar
-        JOptionPane.showMessageDialog(this, panel, "🚗 Catálogo de Vehículos", JOptionPane.PLAIN_MESSAGE);
-    }
-
+   
 
 
 
