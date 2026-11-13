@@ -178,102 +178,60 @@ public class Registro_cliente extends JFrame {
     private JComboBox<String> comboVehiculoactual;
     JButton registrar_preventa = new JButton("REGISTRAR");
 
+public void jregistro() {
+    // Validar campos
+    if ((nombre_t.getText().trim().isEmpty() ||
+            apellido_t.getText().trim().isEmpty() ||
+            tipoid.getSelectedItem() == null ||
+            ID_t.getText().trim().isEmpty() ||
+            estado_t.getSelectedItem() == null)) {
 
-    public void jregistro() {
-
-        // Validar campos
-        if ((nombre_t.getText().trim().isEmpty() ||
-                apellido_t.getText().trim().isEmpty() ||
-                tipoid.getSelectedItem() == null ||
-                ID_t.getText().trim().isEmpty() ||
-                estado_t.getSelectedItem() == null)) {
-
-            JOptionPane.showMessageDialog(this, "HAY ALGUN CAMPO SIN LLENAR");
-            return;
-        }
-
-        String estado = estado_t.getSelectedItem().toString();
-
-        // Registrar cliente en el sistema
-        Cliente cliente = concesionario.getClientService().registrarCliente(
-                nombre_t.getText(),
-                apellido_t.getText(),
-                (String) tipoid.getSelectedItem(),
-                ID_t.getText(),
-                telefono_t.getText(),
-                correo_t.getText(),
-                estado
-        );
-
-        // Asignar asesor (puedes hacerlo aleatorio)
-        Asesor asesor = concesionario.getRepoAsesor().obtenerAleatorio();
-
-
-
-        // Si el cliente está en estado VENTA, continuar con pago
-        if (estado.equalsIgnoreCase("VENTA")) {
-
-            // Obtener todos los vehículos disponibles del concesionario
-            List<Vehiculo> disponibles = concesionario.getVehiculoService().obtenerCatalogo();
-
-            if (disponibles == null || disponibles.isEmpty()) {
-                JOptionPane.showMessageDialog(this,
-                        "No hay vehículos disponibles para la venta.",
-                        "Sin vehículos",
-                        JOptionPane.WARNING_MESSAGE);
-                return;
-            }
-
-            // Abrir el formulario de pago con la lista de vehículos
-            PagoForm pagoForm = new PagoForm(cliente, asesor, disponibles);
-            pagoForm.setVisible(true);
-
-            // Cerrar este formulario
-            dispose();
-
-        } else {
-            JOptionPane.showMessageDialog(this,
-                    "El cliente quedó registrado en estado de PREVENTA.",
-                    "Preventa",
-                    JOptionPane.INFORMATION_MESSAGE);
-        }
+        JOptionPane.showMessageDialog(this, "HAY ALGÚN CAMPO SIN LLENAR");
+        return;
     }
 
+    String estado = estado_t.getSelectedItem().toString();
 
-    public static void main(String[] args) {
+    // Registrar cliente en el sistema
+    Cliente cliente = concesionario.getClientService().registrarCliente(
+            nombre_t.getText(),
+            apellido_t.getText(),
+            (String) tipoid.getSelectedItem(),
+            ID_t.getText(),
+            telefono_t.getText(),
+            correo_t.getText(),
+            estado
+    );
 
-        // Repositorios
-        iRepoAsesor repoAsesor = new RepositorioAsesor();
-        iRepoCliente repoCliente = new RepositorioCliente();
-        iRepoVehiculo repoVehiculo = new RepossitorioVehiculo();
-        iRepoCompra repoCompra = new RepositorioCompra();
+    // Asignar asesor (puede ser aleatorio)
+    Asesor asesor = concesionario.getRepoAsesor().obtenerAleatorio();
+    List<Vehiculo> disponibles = concesionario.getVehiculoService().obtenerCatalogo();
 
-        // Servicio de notificación (simple)
-        iServicioNotificacion notificacionService = new ServicioNotificacionSwing();
-        iCalculadoraPago calculadoraPago = new CalculadoraPago();
-        CompraService compraService = new CompraService(
-                repoCompra,
-                calculadoraPago,
-                notificacionService
-        );
-
-        // Servicios
-        ClientService clientService = new ClientService(repoCliente, repoAsesor, notificacionService);
-        VehiculoService vehiculoService = new VehiculoService(repoVehiculo);
-
-
-        // ConcesionarioService centralCliente();
-        ConcesionarioService concesionario = new ConcesionarioService(
-                clientService,
-                vehiculoService,
-                compraService,
-                repoAsesor
-        );
-
-        javax.swing.SwingUtilities.invokeLater(() ->
-                new Menu(concesionario, vehiculoService).setVisible(true)
-        );
+    if (disponibles == null || disponibles.isEmpty()) {
+        JOptionPane.showMessageDialog(this,
+                "No hay vehículos disponibles.",
+                "Sin vehículos",
+                JOptionPane.WARNING_MESSAGE);
+        return;
     }
 
+    // 🔹 Caso 1: Estado = VENTA
+    if (estado.equalsIgnoreCase("VENTA")) {
+        PagoForm pago = new PagoForm(cliente, asesor, disponibles, concesionario);
+        pago.setVisible(true);
+        dispose();
+    }
+
+    // 🔹 Caso 2: Estado = PREVENTA
+    else if (estado.equalsIgnoreCase("PREVENTA")) {
+        Registro_preventa preventa = new Registro_preventa(cliente, asesor, disponibles);
+        preventa.setVisible(true);
+        dispose();
+    }
+}
+
+
+
+   
 
 }

@@ -1,6 +1,8 @@
 package Swing;
 
-import Pagos.*;
+import Pagos.PagoInvalidoException;
+import Servicio.ConcesionarioService;
+import Servicio.DatosAdicionales;
 import concesionarioo.*;
 import javax.swing.*;
 import java.awt.*;
@@ -21,8 +23,11 @@ public class PagoForm extends JFrame {
     private Cliente cliente;
     private Asesor asesor;
     private List<Vehiculo> vehiculosDisponibles;
+    private final ConcesionarioService concesionario;
 
-    public PagoForm(Cliente cliente, Asesor asesor, List<Vehiculo> vehiculosDisponibles) {
+    public PagoForm(Cliente cliente, Asesor asesor, List<Vehiculo> vehiculosDisponibles,
+                    ConcesionarioService concesionario) {
+        this.concesionario = concesionario;
         this.cliente = cliente;
         this.asesor = asesor;
         this.vehiculosDisponibles = vehiculosDisponibles;
@@ -153,42 +158,61 @@ public class PagoForm extends JFrame {
             return;
         }
 
-        Pago pago;
-
         try {
-            switch (tipo.toUpperCase()) {
-                case "CONTADO" -> {
-                    pago = new PagoContado(cliente, asesor, vehiculoSeleccionado);
-                    JOptionPane.showMessageDialog(this, "Pago al contado registrado exitosamente.");
-                    pago.generarFactura();
-                }
-                case "CRÉDITO" -> {
-                    int cuotas = Integer.parseInt(JOptionPane.showInputDialog(this, "Número de cuotas:"));
-                    pago = new PagoCredito(cliente, asesor, vehiculoSeleccionado, cuotas);
-                    JOptionPane.showMessageDialog(this, "Pago a crédito registrado exitosamente.");
-                    pago.generarFactura();
-                }
-                case "LEASING" -> {
-                    String entidad = JOptionPane.showInputDialog(this, "Entidad financiera:");
-                    int cuotas = Integer.parseInt(JOptionPane.showInputDialog(this, "Número de cuotas:"));
-                    double inicial = Double.parseDouble(JOptionPane.showInputDialog(this, "Valor de la cuota inicial:"));
-                    int duracion = Integer.parseInt(JOptionPane.showInputDialog(this, "Duración del contrato (meses):"));
-                    pago = new PagoLeasing(vehiculoSeleccionado, cliente, asesor, entidad, cuotas, inicial, duracion);
-                    JOptionPane.showMessageDialog(this, "Pago leasing registrado exitosamente.");
-                    pago.generarFactura();
-                }
-                default -> {
-                    JOptionPane.showMessageDialog(this, "Seleccione una forma de pago válida.", "Advertencia", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
+            DatosAdicionales datos = solicitarDatosAdicionales(tipo);
+            if (datos == null) {
+                return; // el usuario canceló alguno de los cuadros de diálogo
             }
 
+            // El patrón Strategy se aplica dentro del servicio: el formulario ya
+            // no decide cómo se calcula cada forma de pago.
+            concesionario.registrarCompra(cliente, vehiculoSeleccionado, asesor, tipo, datos);
             dispose();
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(this, "Ingrese valores numéricos válidos.", "Error", JOptionPane.ERROR_MESSAGE);
+        } catch (PagoInvalidoException | IllegalArgumentException | IllegalStateException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Datos de pago inválidos", JOptionPane.WARNING_MESSAGE);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Error al procesar el pago: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    /**
+     * Pide al usuario solo los datos que necesita cada forma de pago.
+     * Es lógica de interfaz (qué preguntar); el cálculo vive en las estrategias.
+     *
+     * @return los datos capturados, o null si el usuario canceló
+     */
+    private DatosAdicionales solicitarDatosAdicionales(String tipo) {
+        DatosAdicionales datos = new DatosAdicionales();
+        String normalizado = tipo.trim().toUpperCase();
+
+        if (normalizado.equals("CONTADO")) {
+            return datos;
+        }
+
+        if (normalizado.equals("LEASING")) {
+            String entidad = JOptionPane.showInputDialog(this, "Entidad financiera:");
+            if (entidad == null) {
+                return null;
+            }
+            datos.setEntidadFinanciera(entidad);
+        }
+
+        String cuotas = JOptionPane.showInputDialog(this, "Número de cuotas:");
+        if (cuotas == null) {
+            return null;
+        }
+        datos.setNumeroCuotas(Integer.parseInt(cuotas.trim()));
+
+        if (normalizado.equals("LEASING")) {
+            String inicial = JOptionPane.showInputDialog(this, "Valor de la cuota inicial:");
+            if (inicial == null) {
+                return null;
+            }
+            datos.setCuotaInicial(Double.parseDouble(inicial.trim()));
+        }
+        return datos;
     }
 }

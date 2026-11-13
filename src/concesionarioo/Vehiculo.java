@@ -86,7 +86,7 @@ public class Vehiculo {
 
     @Override
     public String toString() {
-        return  "marca=" + marca + ", costo=" + costo + ", modelo=" + modelo + ", pais_ensamblaje=" + pais_ensamblaje ;
+        return  "Marca: " + marca + ", \nCosto: " + costo + ", \nModelo=" + modelo + ", \nPais de ensamblaje=" + pais_ensamblaje ;
     }
     
     
