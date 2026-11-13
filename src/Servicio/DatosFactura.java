@@ -9,6 +9,7 @@ public class DatosFactura {
     private final String infoVehiculo;
     private final LocalDate fecha;
     private final double montoTotal;
+    private final int idFactura;
     private Integer numeroCuotas;
     private Double valorCuota;
     private Double cuotaInicial;
@@ -16,13 +17,22 @@ public class DatosFactura {
 
     public DatosFactura(String tipoFactura, String nombreCliente, String nombreAsesor,
                         String infoVehiculo, LocalDate fecha, double montoTotal) {
+        this(tipoFactura, nombreCliente, nombreAsesor, infoVehiculo, fecha, montoTotal, 0);
+    }
+
+    public DatosFactura(String tipoFactura, String nombreCliente, String nombreAsesor,
+                        String infoVehiculo, LocalDate fecha, double montoTotal, int idFactura) {
         this.tipoFactura = tipoFactura;
         this.nombreCliente = nombreCliente;
         this.nombreAsesor = nombreAsesor;
         this.infoVehiculo = infoVehiculo;
         this.fecha = fecha;
         this.montoTotal = montoTotal;
+        this.idFactura = idFactura;
     }
+
+    /** Número de factura: coincide con el id real de la compra. */
+    public int getIdFactura() { return idFactura; }
 
     public String getTipoFactura() { return tipoFactura; }
     public String getNombreCliente() { return nombreCliente; }

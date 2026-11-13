@@ -52,6 +52,7 @@ public class ServicioNotificacionSwing implements iServicioNotificacion {
 
         String mensaje =
                 "***** FACTURA DE " + factura.getTipoFactura().toUpperCase() + " *****\n\n" +
+                        "N.º de compra: " + factura.getIdFactura() + "\n" +
                         "Cliente: " + factura.getNombreCliente() + "\n" +
                         "Asesor: " + factura.getNombreAsesor() + "\n" +
                         "Vehículo: " + factura.getInfoVehiculo() + "\n" +
