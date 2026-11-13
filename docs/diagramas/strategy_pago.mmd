@@ -1,0 +1,42 @@
+classDiagram
+    direction LR
+    class CompraService {
+        +registrarCompra(...) Compra
+    }
+    class iCalculadoraPago {
+        <<interface>>
+        +calcularFactura(Compra, DatosAdicionales) DatosFactura
+    }
+    class CalculadoraPago {
+        -fabrica : FabricaEstrategiaPago
+        +calcularFactura(Compra, DatosAdicionales) DatosFactura
+    }
+    class FabricaEstrategiaPago {
+        +obtener(tipoPago) EstrategiaPago
+        +registrar(EstrategiaPago)
+        +tiposDisponibles() Set
+    }
+    class EstrategiaPago {
+        <<interface>>
+        +getNombre() String
+        +aplicar(DatosFactura, DatosAdicionales)
+    }
+    class EstrategiaContado
+    class EstrategiaCredito
+    class EstrategiaLeasing
+    class CalculoFinanciero {
+        +cuotaMensual(monto, cuotas, tasa) double
+    }
+    class PagoInvalidoException
+
+    CompraService --> iCalculadoraPago
+    iCalculadoraPago <|.. CalculadoraPago
+    CalculadoraPago --> FabricaEstrategiaPago : pide la estrategia
+    CalculadoraPago ..> EstrategiaPago : delega el cálculo
+    FabricaEstrategiaPago o-- EstrategiaPago
+    EstrategiaPago <|.. EstrategiaContado
+    EstrategiaPago <|.. EstrategiaCredito
+    EstrategiaPago <|.. EstrategiaLeasing
+    EstrategiaCredito ..> CalculoFinanciero
+    EstrategiaLeasing ..> CalculoFinanciero
+    EstrategiaPago ..> PagoInvalidoException : lanza

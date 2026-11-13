@@ -2,17 +2,11 @@
 build/
 dist/
 nbproject/private/
-nbproject/genfiles.properties
+# Compilados
 *.class
-
-# Otros IDEs
+# IDE / sistema
 .idea/
 *.iml
 .vscode/
-.classpath
-.project
-.settings/
-
-# Sistema operativo
 .DS_Store
 Thumbs.db
