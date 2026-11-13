@@ -89,7 +89,12 @@ public class Compra {
 
     @Override
     public String toString() {
-        return "Compra{" + "idprestamo=" +  ", carro=" + vehiculo + ", cliente=" + cliente + ", fechap=" + fecha + ", fechad=" + '}';
+        return "Compra{id=" + idCompra
+                + ", vehiculo=" + vehiculo.getMarca() + " " + vehiculo.getModelo()
+                + ", cliente=" + cliente.getNombre() + " " + cliente.getApellido()
+                + ", asesor=" + asesor.getNombre()
+                + ", pago=" + tipoPago
+                + ", fecha=" + fecha + "}";
     }
     
     
