@@ -28,6 +28,39 @@ No incluye todavía persistencia en base de datos, autenticación de usuarios ni
 - **Validaciones y manejo de errores:** cuotas mayores que cero, entidad financiera obligatoria en leasing, cuota inicial válida, inventario disponible y mensajes claros al usuario mediante `PagoInvalidoException`.
 - **Pruebas automatizadas:** 31 casos con JUnit 4 sobre las estrategias de pago, la fábrica, el servicio de compras y las búsquedas.
 
+## Qué se actualizó en esta entrega
+
+**Nuevas funcionalidades**
+- Búsqueda de clientes (por ID), asesores (por nombre), vehículos (por modelo o marca) y compras (por número).
+- Catálogo de vehículos en tabla, con la columna de existencias.
+- Preventa con registro del vehículo actual y del vehículo deseado del cliente.
+- Control de inventario: cada compra descuenta una unidad del vehículo y el cliente queda asociado al vehículo comprado.
+- Número de compra real (secuencial y único) en la factura, en lugar de números aleatorios.
+- Punto de entrada `Main` con apariencia Nimbus.
+
+**Nuevos componentes**
+- `EstrategiaPago`, `EstrategiaContado`, `EstrategiaCredito`, `EstrategiaLeasing`, `FabricaEstrategiaPago`, `CalculoFinanciero` y `PagoInvalidoException` (paquete `Pagos`).
+- `Registro_preventa` y `Main`.
+- Métodos de búsqueda en `ConcesionarioService` y campo de número de factura en `DatosFactura`.
+
+**Cambios de diseño y código**
+- Patrones **Strategy** y **Factory** aplicados a las formas de pago (ver sección *Patrones y decisiones de construcción*).
+- `CalculadoraPago` delega en las estrategias y ya no usa `switch` por tipo de pago.
+- `PagoForm` solo captura datos y llama al servicio de compras; la lógica quedó en `CompraService`.
+- Se eliminó la jerarquía duplicada `Pago`, `PagoContado`, `PagoCredito`, `PagoLeasing` y `RegistroPago`.
+- Se unificó la regla de interés de crédito y leasing, y se corrigió que el leasing ignoraba la cuota inicial indicada por el usuario.
+
+**Validaciones y manejo de errores**
+- Cuotas mayores que cero, entidad financiera obligatoria en leasing y cuota inicial válida.
+- Verificación de inventario antes de vender y manejo de formas de pago no soportadas.
+- La compra solo se guarda si el cálculo del pago es válido.
+
+**Pruebas**
+- 31 pruebas automatizadas con JUnit 4 sobre estrategias, fábrica, compras y búsquedas (carpeta `tests/`).
+
+**Documentación**
+- README actualizado, documentación del patrón en `docs/patrones/` y diagrama de clases en `docs/diagramas/`.
+
 ## Tecnologías utilizadas
 
 - **Lenguaje de programación:** Java (JDK 21 o superior)
@@ -110,50 +143,17 @@ Documentación detallada del patrón, con diagrama de clases y ejemplo de extens
 - **Refactorización guiada por patrones:** se identificó el código duplicado y los `switch` por tipo de pago, y se reemplazaron por el patrón Strategy sin cambiar lo que ve el usuario.
 - **Pruebas automatizadas:** se verifican por separado cada estrategia, la fábrica, el flujo de compra y las búsquedas, incluyendo los casos de error.
 - **Arquitectura por capas:** interfaz (`Swing`), servicios (`Servicio`), acceso a datos (`Repositorio`) y modelos (`concesionarioo`), cada una con una responsabilidad.
-- **Organización del equipo:** <<describan aquí cómo se reparten el trabajo: por módulos, por funcionalidades, quién revisa, cómo se comunican>>.
+- **Organización del equipo:** los cuatro integrantes participan en el desarrollo y registran su trabajo con commits desde su propia cuenta de GitHub; las decisiones de diseño (patrones, estructura y alcance) se acuerdan en grupo.
 
-## Instrucciones de ejecución
-
-**Con NetBeans (recomendado)**
-1. Clonar: `git clone https://github.com/gabii-opss/Concesionario.git`
-2. `File > Open Project` y seleccionar la carpeta del repositorio.
-3. Clic derecho en el proyecto > `Run` (clase principal: `concesionarioo.Main`).
-
-**Por línea de comandos (JDK 21 o superior)**
-
-En Windows (PowerShell):
-```powershell
-mkdir out
-javac -encoding UTF-8 -d out (Get-ChildItem -Recurse src -Filter *.java).FullName
-java -cp out concesionarioo.Main
-```
-
-En Linux o macOS:
-```bash
-mkdir -p out
-javac -encoding UTF-8 -d out $(find src -name "*.java")
-java -cp out concesionarioo.Main
-```
-
-**Ejecutar las pruebas**
-
-En NetBeans: clic derecho en *Test Libraries* > *Add Library* > **JUnit 4.x**, luego clic derecho en el proyecto > **Test** (Alt+F6). Más detalle en [`tests/README.md`](tests/README.md).
 
 ## Integrantes del equipo
 
-| Nombre | Usuario GitHub |
-|---|---|
-| <<Nombre integrante 1>> | <<@usuario>> |
-| <<Nombre integrante 2>> | <<@usuario>> |
-| <<Nombre integrante 3>> | <<@usuario>> |
+- Gabriela Puentes
+- Manuel Cifuentes
+- César Lozano
+- Sebastián Medina
 
 ## Estado actual del proyecto
 
-Segunda entrega: núcleo funcional completo (clientes, asesores, catálogo, preventas, compras con tres formas de pago y búsquedas), patrón Strategy + Factory implementado, control de inventario, validaciones, manejo de errores y pruebas automatizadas.
+Estado final: núcleo funcional completo (clientes, asesores, catálogo, preventas, compras con tres formas de pago y búsquedas), patrón Strategy + Factory implementado, control de inventario, validaciones, manejo de errores y pruebas automatizadas.
 
-## Próximos avances
-
-- Persistencia (base de datos o archivos) para clientes, compras e inventario.
-- Patrón **Observer** para las notificaciones.
-- Búsqueda por varios criterios a la vez (marca, rango de precio) con listado de resultados, no solo el primero.
-- Reportes exportables (PDF/CSV) y recuperar el reporte de clientes en preventa en el menú.
