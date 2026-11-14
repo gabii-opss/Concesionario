@@ -204,7 +204,7 @@ public void jregistro() {
     );
 
     // Asignar asesor (puede ser aleatorio)
-    Asesor asesor = concesionario.getRepoAsesor().obtenerAleatorio();
+    Asesor asesor = cliente.getAsesor_asignado();
     List<Vehiculo> disponibles = concesionario.getVehiculoService().obtenerCatalogo();
 
     if (disponibles == null || disponibles.isEmpty()) {
